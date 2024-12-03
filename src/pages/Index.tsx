@@ -7,15 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Check, Copy, RefreshCw } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-
-// Common English words for password generation
-const words = [
-  "apple", "banana", "carrot", "dolphin", "elephant", "forest", "giraffe", "house",
-  "island", "jungle", "kangaroo", "lemon", "mango", "nature", "orange", "penguin",
-  "quiet", "rabbit", "sunset", "turtle", "umbrella", "violet", "window", "yellow",
-  "zebra", "mountain", "river", "ocean", "castle", "garden", "rainbow", "butterfly",
-  // ... Add more words to reach 300
-];
+import { words } from "@/data/wordDatabase";
 
 // Symbols that look similar are excluded by default
 const availableSymbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
@@ -34,8 +26,13 @@ const Index = () => {
       .filter(symbol => !excludedSymbols.includes(symbol))
       .join("");
 
-    const getRandomWord = () => {
-      const word = words[Math.floor(Math.random() * words.length)];
+    const getRandomWord = (usedWords: Set<string>) => {
+      let word;
+      do {
+        word = words[Math.floor(Math.random() * words.length)];
+      } while (usedWords.has(word));
+      
+      usedWords.add(word);
       return useCapitals && Math.random() > 0.5 
         ? word.charAt(0).toUpperCase() + word.slice(1) 
         : word;
@@ -45,14 +42,22 @@ const Index = () => {
     const getRandomNumber = () => Math.floor(Math.random() * 10).toString();
 
     const generateSinglePassword = () => {
-      let password = getRandomWord() + getRandomNumber() + getRandomSymbol() + getRandomWord();
+      const usedWords = new Set<string>();
+      let password = getRandomWord(usedWords) + getRandomNumber() + getRandomSymbol() + getRandomWord(usedWords);
       
       // Add random characters until we reach desired length
       while (password.length < passwordLength) {
         const rand = Math.random();
         if (rand < 0.4) password += getRandomNumber();
         else if (rand < 0.7) password += getRandomSymbol();
-        else password += getRandomWord();
+        else {
+          if (usedWords.size < words.length) {
+            password += getRandomWord(usedWords);
+          } else {
+            // If we've used all words, fall back to numbers and symbols
+            password += Math.random() < 0.5 ? getRandomNumber() : getRandomSymbol();
+          }
+        }
       }
 
       // Trim to exact length if exceeded
