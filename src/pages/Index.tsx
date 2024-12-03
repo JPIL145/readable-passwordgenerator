@@ -33,7 +33,8 @@ const Index = () => {
       } while (usedWords.has(word));
       
       usedWords.add(word);
-      return useCapitals && Math.random() > 0.5 
+      // If useCapitals is true, always capitalize the word
+      return useCapitals 
         ? word.charAt(0).toUpperCase() + word.slice(1) 
         : word;
     };
