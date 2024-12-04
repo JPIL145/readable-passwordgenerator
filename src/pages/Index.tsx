@@ -8,7 +8,7 @@ import { Label } from "@/components/ui/label";
 import { Check, Copy, Moon, RefreshCw, Sun } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { words } from "@/data/wordDatabase";
-import { useTheme } from "next-themes";
+import { useTheme } from "@/components/theme-provider";
 
 const availableSymbols = "!@#$%^&*()_+-=[]{}|;:,.<>?";
 
@@ -34,7 +34,6 @@ const Index = () => {
       } while (usedWords.has(word));
       
       usedWords.add(word);
-      // If useCapitals is true, always capitalize the word
       return useCapitals 
         ? word.charAt(0).toUpperCase() + word.slice(1) 
         : word;
@@ -47,7 +46,6 @@ const Index = () => {
       const usedWords = new Set<string>();
       let password = getRandomWord(usedWords) + getRandomNumber() + getRandomSymbol() + getRandomWord(usedWords);
       
-      // Add random characters until we reach desired length
       while (password.length < passwordLength) {
         const rand = Math.random();
         if (rand < 0.4) password += getRandomNumber();
@@ -56,13 +54,11 @@ const Index = () => {
           if (usedWords.size < words.length) {
             password += getRandomWord(usedWords);
           } else {
-            // If we've used all words, fall back to numbers and symbols
             password += Math.random() < 0.5 ? getRandomNumber() : getRandomSymbol();
           }
         }
       }
 
-      // Trim to exact length if exceeded
       return password.slice(0, passwordLength);
     };
 
@@ -87,7 +83,7 @@ const Index = () => {
           variant="outline"
           size="icon"
           className="absolute right-4 top-4"
-          onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+          onClick={() => setTheme(theme === "light" ? "dark" : "light")}
         >
           <Sun className="h-[1.2rem] w-[1.2rem] rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0" />
           <Moon className="absolute h-[1.2rem] w-[1.2rem] rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
